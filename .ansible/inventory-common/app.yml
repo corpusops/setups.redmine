@@ -1,0 +1,4 @@
+redmine:
+  children:
+    controller:
+    redmine_servers:

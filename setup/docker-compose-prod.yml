@@ -1,0 +1,12 @@
+version: '3.7'
+services:
+  db:
+    restart: unless-stopped
+  setup-services:
+    restart: unless-stopped
+  redmine:
+    restart: unless-stopped 
+  traefik:
+    restart: unless-stopped
+  backup:
+    restart: unless-stopped

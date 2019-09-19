@@ -1,0 +1,5 @@
+cops_redmine_http_protect_password: ""
+cops_redmine_deploy_env: prod
+cops_redmine_mail_host: mail.makina-corpus.com
+cops_redmine_mail_user: tsa@makina-corpus.com
+cops_redmine_mail_password: e83e561e-54cc-410f-8c49-940ab024f633

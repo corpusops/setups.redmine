@@ -1,0 +1,3 @@
+---
+- import_playbook: redmine.yml
+  tags: [play_redmine_app]

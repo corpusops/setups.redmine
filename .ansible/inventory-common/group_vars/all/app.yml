@@ -1,0 +1,10 @@
+---
+redmine_servers: redmine_servers
+cops_redmine_name: "redmine"
+cops_redmine_tld_domain: "example.net"
+cops_redmine_hostname:  "{{cops_redmine_name}}.{{cops_redmine_tld_domain}}"
+cops_redmine_alternate_hostnames: ["{{cops_redmine_hostname}}", "www.{{cops_redmine_hostname}}"]
+cops_redmine_gitref: "{{lookup('env', 'CI_COMMIT_TAG_NAME') or lookup('env', 'CI_COMMIT_REF_NAME') or 'latest'}}"
+cops_redmine_docker_tag: "{{cops_redmine_gitref.replace('master', 'latest')}}"
+cops_redmine_docker_env_extra: |-
+  # db

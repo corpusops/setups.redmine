@@ -1,0 +1,33 @@
+debug = false
+logLevel = "INFO"
+defaultEntryPoints = ["http"]
+InsecureSkipVerify = true
+entryPoints = { http = {address = ":80"}}
+# filePath = "log/traefik.log" / format: "common/json"
+{{ $accesslogpath := .Env.TRAEFIK_ACCESS_LOG_PATH | default "os.Stdout" }}
+{{ $logpath       := .Env.TRAEFIK_LOG_PATH | default "/logs/traefik.log" }}
+{{ $nossl := .Env.NO_SSL | default "0" }}
+traefikLog = { filePath = "{{$logpath}}", format = "common" }
+accessLog = { filePath = "{{$accesslogpath}}", format = "common" }
+api = { entryPoint = "traefik", dashboard = true }
+ping = { entryPoint = "traefik", dashboard = true }
+rest = { entryPoint = "traefik", dashboard = true }
+
+
+[file]
+[frontends.redmine]
+  backend = "redmine"
+  passHostHeader = true
+{{ if ne $nossl "1" }}
+[frontends.redmine.headers]
+  SSLRedirect = true
+[frontends.redmine.headers.SSLProxyHeaders]
+  X-Forwarded-Proto = "https"
+{{ end }}
+[frontends.redmine.routes.redmine]
+  rule = "PathPrefix:/"
+[backends.redmine.servers.redmine]
+  url = "http://redmine:3000"
+[backends.redmine]
+  healthcheck = { path = "/", interval = "15s" }
+[backends.redmine.loadbalancer.stickiness]

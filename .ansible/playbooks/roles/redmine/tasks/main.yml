@@ -1,0 +1,64 @@
+---
+- file:
+    state: directory
+    mode: "2751"
+    path: "{{item}}"
+  with_items:
+  - "{{cops_redmine_dir}}"
+- name: Synchronise files inside the environment (deleguation)
+  delegate_to: "localhost"
+  synchronize:
+    compress: false
+    ssh_args: "{{cops_redmine_sshargs}}"
+    src: "{{cops_redmine_code_dir}}"
+    dest: "{{cops_redmine_dir}}/"
+    rsync_opts: "{{cops_redmine_code_rsync_opts}}"
+    set_remote_user: "no"
+    #update_opts: '--recursive'
+- template:
+    src: "docker.env"
+    dest: "{{cops_redmine_compose_dir}}/docker.env"
+    mode: "0640"
+    trim_blocks: false
+- blockinfile:
+    create: true
+    path: "{{cops_redmine_compose_dir}}/.env"
+    content: |-
+      {{cops_redmine_dotenv}}
+      {{cops_redmine_dotenv_extra}}
+    marker: "# ANSIBLE MANAGED BLOCK :: deploy commit :: {mark}"
+- name: Create directories
+  file:
+    path: "{{cops_redmine_compose_dir}}/{{ item.path }}"
+    state: directory
+    mode: '{{ item.mode }}'
+  with_filetree: "{{playbook_dir}}/../../setup/"
+  when: item.state == 'directory'
+- name: Template files
+  template:
+    src: '{{ item.src }}'
+    dest: "{{cops_redmine_compose_dir}}/{{ item.path }}"
+    mode: '{{ item.mode }}'
+    trim_blocks: false
+  with_filetree: "{{playbook_dir}}/../../setup/"
+  when: item.state == 'file'
+- include_tasks: docker_login.yml
+  with_items: "{{cops_redmine_registries}}"
+- shell: |
+    set -ex
+    cd "{{cops_redmine_compose_dir}}"
+    : {{cops_redmine_dc}} build {{cops_redmine_build_args}}
+  when:
+  - "cops_redmine_build|copsf_asbool"
+  - "cops_redmine_build_args|copsf_asbool"
+# ensure all images are (re) pulled
+- shell: |
+    set -ex
+    cd "{{cops_redmine_compose_dir}}"
+    {{cops_redmine_dc}} pull {{cops_redmine_pull_args}}
+  retries: 5
+  delay: 10
+  when:
+  - "cops_redmine_pull|copsf_asbool"
+- include_tasks: service.yml
+  tags: [redmine_service, service]
