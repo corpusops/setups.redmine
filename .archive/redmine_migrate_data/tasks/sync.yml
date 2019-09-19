@@ -1,0 +1,8 @@
+- shell: >-
+    {% set h = groups[orig][0] %}
+    {% set v = hostvars[h] %}
+    rsync -azv --no-g --no-o --no-perms -e "ssh -p {{v.ansible_port}}"
+    "{{v.ansible_host}}":"{{item.orig}}"
+    "{{item.dest}}"
+  tags: [rsync]
+

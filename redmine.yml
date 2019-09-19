@@ -1,0 +1,4 @@
+---
+- hosts: "{{redmine_servers|default('redmine_servers')}}"
+  roles:
+  - {name: redmine/setup, tags: [setup]}

@@ -1,0 +1,196 @@
+---
+cops_redmine_name: redmine
+cops_redmine_code_dir: "{{playbook_dir}}/../.."
+cops_redmine_project_module_name: "{{cops_redmine_name}}"
+cops_redmine_deploy_env: "dev"
+cops_redmine_docker_image: "{{cops_redmine_name}}"
+cops_redmine_default_docker_tag: "latest"
+cops_redmine_docker_tag: "{{cops_redmine_default_docker_tag}}"
+cops_redmine_tld_domain: example.com
+cops_redmine_default_gitref: "master"
+cops_redmine_gitref: "{{cops_redmine_default_gitref}}"
+cops_redmine_basedir: /srv/docker/redmine
+cops_redmine_compose_project: "{{cops_redmine_basedir|copsf_basename}}"
+cops_redmine_volumes:
+- "{{cops_redmine_hostdir}}"
+cops_redmine_data_volume: "{{cops_redmine_basedir}}/data"
+cops_redmine_hostdir: "{{cops_redmine_basedir}}/current"
+cops_redmine_hostname: "{{cops_redmine_deploy_env}}-{{cops_redmine_name}}.{{cops_redmine_tld_domain}}"
+cops_redmine_alternate_hostnames: ["{{cops_redmine_hostname}}", "www.{{cops_redmine_hostname}}"]
+cops_redmine_gateway: "{{ ansible_default_ipv4.address}}"
+cops_redmine_mysql_image: "corpusops/mysql:5.7"
+cops_redmine_vversion: "v{{cops_redmine_version}}"
+cops_redmine_version: "4"
+cops_redmine_versioned_hostdir: "{{cops_redmine_basedir}}/{{cops_redmine_version}}"
+cops_redmine_image: "redmine:{{cops_redmine_version}}"
+cops_redmine_time_zone: "Europe/Paris"
+cops_redmine_composename: "{{cops_redmine_name}}"
+cops_redmine_build_args: "--no-cache --pull"
+# backup could be remove in a-while when we have redeployed it everywhere
+cops_redmine_restarted_services_default: "db setup-services redmine traefik"
+cops_redmine_restarted_services: "{{cops_redmine_restarted_services_default}}"
+cops_redmine_purge_volumes: []
+cops_redmine_sshargs: >-
+  {% set k = hostvars[inventory_hostname].get(
+                'ansible_ssh_private_key_file', '') %}
+  {% if k%}-o IdentityFile={{k}} -o IdentitiesOnly=yes{%endif%}
+  {% if (
+      hostvars[inventory_hostname].ansible_connection|default('ssh')
+     ) not in [ 'smart', 'local'] %}
+  {{ hostvars[inventory_hostname].ssh_args | default('') }}
+  {{ hostvars[inventory_hostname].ansible_ssh_args | default('') }}
+  {{ hostvars[inventory_hostname].ansible_ssh_common_args | default('') }}
+  {{ hostvars[inventory_hostname].ansible_ssh_extra_args | default('') }}
+  {% endif %}
+cops_redmine_build: true
+cops_redmine_pull: true
+cops_redmine_registries: []
+#- {registry: registry.foo.net, username: foo, password: bar}
+cops_redmine_compose_files: [docker-compose.yml, docker-compose-prod.yml]
+cops_redmine_dc:
+  docker-compose {% for i in cops_redmine_compose_files %} -f {{i}}{% endfor %}
+  -p "{{cops_redmine_composename}}"
+cops_redmine_hosts_whitelist: "{{(
+    [cops_redmine_hostname, '0.0.0.0', '.{0}'.format(cops_redmine_hostname)]+
+    cops_redmine_alternate_hostnames
+  )|join('-|_')}}"
+# very small, perfect for testing purpose
+cops_redmine_pull_args: ""
+cops_redmine_db_password: supersecret
+# free form for params inside dockerenv
+cops_redmine_admin_email: "a@foo.com"
+cops_redmine_admin_password: "secret"
+cops_redmine_redmine_user: redmine_user
+cops_redmine_redmine_db: redmine
+cops_redmine_mysql_host: db
+cops_redmine_mysql_port: 3306
+cops_redmine_secret_key: wootwoot
+cops_redmine_dotenv: |-
+  # dbs
+  BACKUP_TYPE=mysql
+  # db
+  MYSQL_LOG_CONSOLE=true
+  MYSQL_STARTUP_TIMEOUT={{cops_redmine_mysql_startup_timeout}}
+  DB_HOST={{cops_redmine_mysql_host}}
+  MYSQL_HOST={{cops_redmine_mysql_host}}
+  REDMINE_DB_MYSQL={{cops_redmine_mysql_host}}
+  REDMINE_DB_HOST={{cops_redmine_mysql_host}}
+  MYSQL_PORT={{cops_redmine_mysql_port}}
+  MYSQL_USER=root
+  REDMINE_DB_DATABASE={{cops_redmine_redmine_db}}
+  REDMINE_DB_USERNAME={{cops_redmine_redmine_user}}
+  MYSQL_PASSWORD={{cops_redmine_db_password}}
+  MYSQL_ROOT_PASSWORD={{cops_redmine_db_password}}
+  MYSQL_PASSWORD={{cops_redmine_db_password}}
+  REDMINE_DB_PASSWORD={{cops_redmine_db_password}}
+  MYSQL_PWD={{cops_redmine_db_password}}
+  #
+  APP_TYPE=redmine
+  SECRET_KEY={{cops_redmine_secret_key}}
+  REDMINE_VERSION={{cops_redmine_version}}
+  COMPOSE_PROJECT_NAME={{cops_redmine_compose_project}}
+  CONTROL_COMPOSE_FILES={{cops_redmine_compose_files|join(' ')}}
+  COMPOSE_FILE={{cops_redmine_compose_files|join(':')}}
+  CI_COMMIT_SHA={{cops_redmine_gitref}}
+  REDMINE_SECRET_KEY_BASE={{cops_redmine_secret_key}}
+  REDMINE_NAME={{ cops_redmine_name }}
+  REDMINE_IMAGE={{ cops_redmine_docker_image }}
+  REDMINE_IMAGE_VERSION={{cops_redmine_docker_tag}}
+  REDMINE_ADMIN_EMAIL={{cops_redmine_admin_email}}
+  REDMINE_ADMIN_PASSWORD={{cops_redmine_admin_password}}
+  REDMINE_SERVER_HOSTNAME={{cops_redmine_hostname}}
+  TIME_ZONE={{cops_redmine_time_zone}}
+  TIMEZONE={{cops_redmine_time_zone}}
+  TZ={{cops_redmine_time_zone}}
+  CLOUD_MODE=True
+  ENABLE_SIGNUP=True
+  LANGUAGE_CODE=fr
+  DATE_FORMAT=iso-8601
+  DEFAULT_FROM_EMAIL={{cops_redmine_default_from_email}}
+  EMAIL_HOST={{cops_redmine_mail_host}}
+  EMAIL_PORT={{cops_redmine_mail_port}}
+  EMAIL_HOST_USER={{cops_redmine_mail_user}}
+  EMAIL_HOST_PASSWORD={{cops_redmine_mail_password}}
+  EMAIL_USE_TLS={{cops_redmine_use_tls}}
+  REDMINE_NAME={{cops_redmine_redmine_name}}
+  REDMINE_TITLE={{cops_redmine_redmine_title}}
+  REDMINE_DB_POOL={{redmine_db_pool}}
+  # mailcatcher
+  MAILCATCHER_USER={{cops_redmine_mail_user}}
+  MAILCATCHER_PASSWORD={{cops_redmine_mail_password}}
+  REDMINE_ORIG_HOST={{cops_redmine_orig_host}}
+  REDMINE_ORIG_PORT={{cops_redmine_orig_port}}
+  REDMINE_DATA_PATH="{{cops_redmine_data_path}}"
+  REDMINE_ORIGDATA_PATH="{{cops_redmine_old_data_path}}"
+  REDMINE_ORIG_WD="{{cops_redmine_hostdir}}"
+  REDMINE_WD="{{cops_redmine_hostdir}}"
+  {{cops_redmine_dotenv_extra}}
+cops_redmine_data_path: "/var/lib/docker/volumes/redmine-redmine-data/_data/"
+cops_redmine_old_data_path: "{{cops_redmine_data_path}}"
+cops_redmine_orig_host: ""
+cops_redmine_orig_port: "22"
+redmine_db_pool: 15
+cops_redmine_passenger_version: "6.0.15"
+cops_redmine_plugins_script_default: |-
+  git clone https://github.com/makinacorpus/redmine_ckeditor \
+  && git clone https://github.com/makinacorpus/Redmine-Monitoring-Controlling.git redmine_monitoring_controlling
+cops_redmine_plugins_script_4_default: |-
+  git clone https://github.com/a-ono/redmine_ckeditor.git \
+  && git clone https://github.com/makinacorpus/redmine_default_assign.git && cd redmine_default_assign && git reset --hard origin/r4 && cd - \
+  && : git clone https://github.com/makinacorpus/redmine_importer.git && : cd redmine_importer && : git reset --hard origin/r4 && : cd -\
+  && git clone https://github.com/makinacorpus/Redmine-Monitoring-Controlling.git redmine_monitoring_controlling
+  && : git clone https://github.com/makinacorpus/redmine_digest.git \
+cops_redmine_plugins_script: "{{lookup('vars', 'cops_redmine_plugins_script_'+cops_redmine_version+'_default', default=cops_redmine_plugins_script_default)}}"
+cops_redmine_collabora_dont_gen_ssl_cert: "set"
+# cops_redmine_collabora_dont_gen_ssl_cert: "1"
+cops_redmine_collabora_username: admin
+cops_redmine_collabora_password: secretT8zdORpmJQBxs7P
+cops_redmine_redmine_name: "Redmine"
+cops_redmine_redmine_title: "Project Issues Tracker"
+cops_redmine_use_tls: "False"
+cops_redmine_default_from_email: "Remdine <foo@localhost>"
+cops_redmine_ldap: false
+cops_redmine_ldap_host: ldap://ldap.foo.com
+cops_redmine_ldap_base: dc=foo
+cops_redmine_ldap_user_dn: ou=User,dc=foo
+cops_redmine_ldap_password: xxx
+cops_redmine_ldap_login_attr: mail
+cops_redmine_ldap_filter: "memberof=cn=people,dc=foo"
+cops_redmine_mysql_startup_timeout: 45s
+cops_redmine_cache_backend_expiry: 43200
+cops_redmine_dotenv_extra: ""
+# Normally playbook is in ./.ansible/playbooks
+cops_redmine_group: prod
+cops_redmine_traefik_extra: ""
+cops_redmine_code_rsync_opts: [
+    "-azv",
+    # include deploy projects base code
+    "--include", "local/*-deploy",
+    "--exclude", ".ansible",
+    "--exclude", "local/*",
+    "--exclude", ".env",
+    "--exclude", "docker.env"]
+olddata:
+  dvolume: /var/lib/docker/volumes/redmine-redmine-data/_data/
+  sync:
+  - orig: /srv/projects/redmine/data/files/
+    dest: /var/lib/docker/volumes/redmine-redmine-data/_data/
+cops_redmine_mail_host: localhost
+cops_redmine_mail_port: 587
+cops_redmine_mail_user: a@a.com
+cops_redmine_mail_password: secret
+cops_redmine_mail_auth_method: ":plain"
+cops_redmine_mail_delivery_method: ":smtp"
+cops_redmine_configuration_yml: |-
+  default:
+    email_delivery:
+      delivery_method: {{cops_redmine_mail_delivery_method}}
+      smtp_settings:
+        enable_starttls_auto: true
+        openssl_verify_mode: 'none'
+        address: {{cops_redmine_mail_host}}
+        port: {{cops_redmine_mail_port}}
+        authentication: {{cops_redmine_mail_auth_method}}
+        user_name: "{{cops_redmine_mail_user}}"
+        password: "{{cops_redmine_mail_password}}"
+cops_redmine_has_mailcatcher: false

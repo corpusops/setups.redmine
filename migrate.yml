@@ -1,0 +1,14 @@
+
+- hosts: ["{{dest}}"]
+  roles: [corpusops.roles/vars]
+  tasks:
+  - include_role: {name: redmine/vars, public: y}
+  - block:
+    - include_role: {name: redmine_migrate_db}
+    tags: [db]
+  - block:
+    - include_role: {name: redmine_migrate_data}
+    tags: [data]
+  - block:
+    - include_role: {name: redmine_migrate_reload}
+    tags: [reload]

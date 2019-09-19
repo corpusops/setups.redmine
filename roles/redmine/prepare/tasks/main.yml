@@ -1,0 +1,15 @@
+- shell: |
+    set -ex
+    cd "{{cops_redmine_hostdir}}"
+    {{cops_redmine_dc}} build {{cops_redmine_build_args}}
+  when:
+  - "cops_redmine_build|copsf_asbool"
+  - "cops_redmine_build_args|copsf_asbool"
+- shell: |
+    set -ex
+    cd "{{cops_redmine_hostdir}}"
+    {{cops_redmine_dc}} pull {{cops_redmine_pull_args}}
+  retries: 5
+  delay: 10
+  when:
+  - "cops_redmine_pull|copsf_asbool"

@@ -1,0 +1,14 @@
+- include_role: {name: corpusops.roles/docker_compose_service}
+  vars:
+    _docker_compose_service:
+      project: "{{cops_redmine_compose_project}}"
+      state: "{{cops_redmine_started_state}}"
+      working_directory: "{{cops_redmine_hostdir}}"
+      stdout: "{{cops_redmine_stdout}}"
+      stderr: "{{cops_redmine_stderr}}"
+- shell: |-
+    set -ex
+    cd "{{cops_redmine_hostdir}}"
+    docker-compose up -d
+    docker-compose up -d --force-recreate {{cops_redmine_restarted_services}}
+  tags: [cops_redmine_restart_services]

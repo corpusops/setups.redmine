@@ -1,0 +1,22 @@
+- set_fact:
+    cops_redmine_host_dirs: |
+        {% set directories = [] %}
+        {% for cops_redmine_volume in cops_redmine_volumes %}
+        {% set d = cops_redmine_volume.split(':')[0] %}
+        {% set _ = directories.append(d) %}
+        {% endfor %}
+        {% set _ = directories.append(cops_redmine_data_volume) %}
+        {{ directories | to_json }}
+- file:
+    path: "{{item}}"
+    mode: "0711"
+    state: directory
+  with_items: "{{cops_redmine_host_dirs}}"
+- file:
+    state: directory
+    path: "{{cops_redmine_versioned_hostdir}}"
+- file:
+    state: link
+    force: true
+    src: "{{cops_redmine_versioned_hostdir}}"
+    path: "{{cops_redmine_hostdir}}"

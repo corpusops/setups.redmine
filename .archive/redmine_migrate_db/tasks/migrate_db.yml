@@ -1,0 +1,24 @@
+- shell: >-
+    mysqldump --no-create-db
+    --host={{item.value.host}}
+    --user={{item.value.user}}
+    --password={{item.value.password}}
+    {{item.value.db}} | gzip > /tmp/{{item.value.db}}.gz
+  register: dump
+  delegate_to: "{{groups[orig][0]}}"
+  no_log:  "{{not (cops_redmine_show_dump|default(false))}}"
+  tags: [dumpdb]
+- shell: >
+    {% set h = groups[orig][0] %}
+    {% set v = hostvars[h] %}
+    rsync -azv -e "ssh -p {{v.ansible_port}}"
+    "{{v.ansible_host}}":/tmp/{{item.value.db}}.gz
+    /tmp/{{item.value.db}}.gz
+  tags: [getdb]
+- shell: |-
+    set -ex
+    cd {{cops_redmine_dir}}
+    zcat /tmp/{{item.value.db}}.gz | \
+      {{cops_redmine_dc}} run --no-deps -T --rm --entrypoint \
+      sh setup-services -exc 'mysql --user=$REDMINE_DB_USERNAME --password=$MYSQL_PASSWORD $REDMINE_DB_DATABASE'
+  tags: [loaddb]

@@ -1,0 +1,13 @@
+---
+# ansible can have leaks even with no_log with maximum output, just use a file
+- template:
+    src: registry
+    dest: "{{cops_redmine_versioned_hostdir}}/.dockerreg_{{item.registry}}_password"
+    mode: "0640"
+- shell: |-
+    set -ex
+    cat "{{cops_redmine_versioned_hostdir}}/.dockerreg_{{item.registry}}_password" \
+    | docker login {{item.registry}} --username="{{item.username}}" --password-stdin
+- file:
+    name: "{{cops_redmine_dir}}/.dockerreg_{{item.registry}}_password"
+    state: absent

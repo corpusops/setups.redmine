@@ -1,0 +1,6 @@
+http.middlewares.o.headers.sslproxyheaders.x-forwarded-proto="https"
+http.middlewares.r.redirectScheme.scheme="https"
+http.routers.1={middlewares=["o","r"],entrypoints=["proxy"],service="1",rule="PathPrefix(`/`)"}
+http.routers.2={middlewares=["o","r"],entrypoints=["proxy"],service="2",rule="PathPrefix(`/mailcatcher`)"}
+http.services.1.loadBalancer.servers.0.url="http://redmine:3000"
+http.services.2.loadBalancer.servers.0.url="http://mailcatcher:8025"

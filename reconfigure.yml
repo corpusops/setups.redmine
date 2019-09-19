@@ -1,0 +1,5 @@
+- hosts: "{{redmine_servers|default('redmine_servers')}}"
+  tasks:
+  - {include_role: {name: "redmine/vars", public: y}}
+  - {include_role: {name: "redmine/layout"}}
+  - {include_role: {name: "redmine/configs"}}

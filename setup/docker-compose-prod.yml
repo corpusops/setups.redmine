@@ -1,0 +1,32 @@
+{%- set syslog_address = '${SYSLOG_ADDRESS:-127.0.0.1}:${SYSLOG_PORT:-10514}' %}
+version: '3.8'
+x-base:
+  x-base: &base
+    depends_on: [log]
+    logging: {driver: syslog, options: {tag: '{{'{{'}}index .ContainerLabels "com.docker.compose.service"}}', syslog-address: "tcp://{{syslog_address}}"}}
+
+    restart: unless-stopped
+services:
+  log:
+    <<: [ *base ]
+    depends_on: []
+    logging: {}
+    image: corpusops/rsyslog
+    volumes: [redmine-logs:/var/log]
+    ports: ["{{syslog_address}}:10514"]
+{%- if cops_redmine_has_mailcatcher %}
+  mailcatcher:
+    <<: [ *base ]
+{%- endif %}
+  db:
+    <<: [ *base ]
+  setup-services:
+    <<: [ *base ]
+  redmine:
+    <<: [ *base ]
+  helpers:
+    <<: [ *base ]
+  traefik:
+    <<: [ *base ]
+  backup:
+    <<: [ *base ]

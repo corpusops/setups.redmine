@@ -1,0 +1,3 @@
+# ensure all images are (re) pulled
+- include_tasks: docker_login.yml
+  with_items: "{{cops_redmine_registries}}"

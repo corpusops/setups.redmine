@@ -1,0 +1,13 @@
+---
+- block:
+  - include_role: {name: corpusops.roles/localsettings_dockercompose}
+  - include_role: {name: corpusops.roles/services_virt_docker}
+  tags: [docker_setup]
+- include_role: {name: redmine/service_stop}
+  tags: [service, redmine_service, redmine_service_stop]
+- include_role: {name: redmine/configure}
+  tags: [configs, redmine_configure]
+- include_role: {name: redmine/service_start}
+  tags: [service, redmine_service, redmine_service_start]
+- include_role: {name: redmine/post}
+  tags: [post]

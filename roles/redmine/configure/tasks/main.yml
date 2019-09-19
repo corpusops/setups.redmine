@@ -1,0 +1,9 @@
+---
+- include_role: {name: redmine/dockerlogin}
+  tags: [redmine_dockerlogin]
+- include_role: {name: redmine/layout}
+  tags: [redmine_layout]
+- include_role: {name: redmine/configs}
+  tags: [redmine_configs]
+- include_role: {name: redmine/prepare}
+  tags: [redmine_prepare]

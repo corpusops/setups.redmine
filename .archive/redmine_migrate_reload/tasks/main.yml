@@ -1,0 +1,5 @@
+- shell: |-
+    set -ex
+    cd {{cops_redmine_dir}}
+    {{cops_redmine_dc}} stop --no-deps redmine || /bin/true
+    {{cops_redmine_dc}} up -d --force-recreate --no-deps redmine
