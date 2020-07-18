@@ -104,6 +104,8 @@ cops_redmine_dotenv: |-
   EMAIL_USE_TLS={{cops_redmine_use_tls}}
   REDMINE_NAME={{cops_redmine_redmine_name}}
   REDMINE_TITLE={{cops_redmine_redmine_title}}
+  REDMINE_DB_POOL={{redmine_db_pool}}
+redmine_db_pool: 15
 cops_redmine_plugins_script_default: |-
   git clone https://github.com/a-ono/redmine_ckeditor.git \
   && git clone https://github.com/makinacorpus/redmine_default_assign.git && cd redmine_default_assign && git reset --hard origin/r4 && cd - \

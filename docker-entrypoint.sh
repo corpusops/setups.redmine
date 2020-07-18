@@ -112,6 +112,7 @@ if [ -n "$isLikelyRedmine" ]; then
 			port \
 			username \
 			password \
+			pool \
 			database \
 			encoding \
 		; do

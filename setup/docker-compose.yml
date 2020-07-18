@@ -74,6 +74,7 @@ services:
     - redmine-data:/usr/src/redmine/files
     - redmine-logs:/usr/src/redmine/logs
     - ./conf:/shared/redmine/conftemplates
+    - ./docker-entrypoint.sh:/docker-entrypoint.sh
     depends_on: [setup-services]
   traefik:
     <<: [ *env ]
