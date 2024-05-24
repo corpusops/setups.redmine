@@ -20,7 +20,7 @@ cops_redmine_alternate_hostnames: ["{{cops_redmine_hostname}}", "www.{{cops_redm
 cops_redmine_gateway: "{{ ansible_default_ipv4.address}}"
 cops_redmine_mysql_image: "corpusops/mysql:5.7"
 cops_redmine_vversion: "v{{cops_redmine_version}}"
-cops_redmine_version: "4"
+cops_redmine_version: "5"
 cops_redmine_versioned_hostdir: "{{cops_redmine_basedir}}/{{cops_redmine_version}}"
 cops_redmine_image: "redmine:{{cops_redmine_version}}"
 cops_redmine_time_zone: "Europe/Paris"
@@ -138,7 +138,7 @@ cops_redmine_plugins_script_4_default: |-
   git clone https://github.com/a-ono/redmine_ckeditor.git \
   && git clone https://github.com/makinacorpus/redmine_default_assign.git && cd redmine_default_assign && git reset --hard origin/r4 && cd - \
   && : git clone https://github.com/makinacorpus/redmine_importer.git && : cd redmine_importer && : git reset --hard origin/r4 && : cd -\
-  && git clone https://github.com/makinacorpus/Redmine-Monitoring-Controlling.git redmine_monitoring_controlling
+  && git clone https://github.com/makinacorpus/Redmine-Monitoring-Controlling.git redmine_monitoring_controlling \
   && : git clone https://github.com/makinacorpus/redmine_digest.git \
 cops_redmine_plugins_script: "{{lookup('vars', 'cops_redmine_plugins_script_'+cops_redmine_version+'_default', default=cops_redmine_plugins_script_default)}}"
 cops_redmine_collabora_dont_gen_ssl_cert: "set"
@@ -194,3 +194,7 @@ cops_redmine_configuration_yml: |-
         user_name: "{{cops_redmine_mail_user}}"
         password: "{{cops_redmine_mail_password}}"
 cops_redmine_has_mailcatcher: false
+cops_redmine_stopped_state: stopped
+cops_redmine_started_state: started
+cops_redmine_stdout: /dev/null
+cops_redmine_stderr: /dev/null

@@ -14,6 +14,7 @@ if [[ -z ${SKIP_STOP-} ]];then
 fi
 if [[ -z ${SKIP_START-} ]];then
     docker-compose start log db
+    sleep 3
 fi
 set -x
 cd $REDMINE_WD
@@ -22,9 +23,8 @@ set -e
 cd $REDMINE_ORIG_WD
 docker-compose exec -T db sh -c 'mysqldump --password=$MYSQL_PASSWORD $REDMINE_DB_DATABASE'
 EOF
-exit 0
 if [[ -z ${SKIP_UP-} ]];then
     docker-compose up -d
-    docker-compose up -d --force-recreate redmine
+    docker-compose up -d --force-recreate redmine traefik
 fi
 # vim:set et sts=4 ts=4 tw=0:

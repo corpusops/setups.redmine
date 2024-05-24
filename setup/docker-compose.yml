@@ -56,8 +56,8 @@ services:
       ( [ -e /conf ] || mkdir -pv /conf ) && cp -vrf /conf.d/* /conf
       while read f;do echo "Gen> $$f" >&2;frep $$f:/conf/$$(basename $$f .frep) --overwrite;done < <(find /conf -name *frep)
       cp -rfv /conf/* /usr/src/redmine/config
-      exec /docker-entrypoint.sh rails server -b 0.0.0.0
-      #exec /docker-entrypoint.sh passenger start
+      #exec /docker-entrypoint.sh rails server -b 0.0.0.0
+      exec /docker-entrypoint.sh passenger start
     volumes:
     - helpers:/helpers
     - redmine-data:/usr/src/redmine/files
